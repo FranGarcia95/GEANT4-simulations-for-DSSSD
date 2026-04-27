@@ -1,0 +1,17 @@
+/run/numberOfThreads 8
+/run/initialize
+
+/gun/particle proton
+/gun/momentumAmp 1.4 MeV
+/run/beamOn 10000000
+
+#/gun/particle proton
+#/gun/momentumAmp 3 MeV
+#/run/beamOn 10000
+
+#/gun/particle proton
+#/gun/momentumAmp 4 MeV
+#/run/beamOn 10000
+
+#hadd file.root output_t{0..3}.root
+#/gun/position 0 0 -5 m
