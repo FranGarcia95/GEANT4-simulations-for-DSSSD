@@ -1,0 +1,20 @@
+projectile n
+element Li
+mass 6
+
+energy 3 #Neutron energy in MeV
+
+#
+# Parameters
+#
+#bins 20
+#widthmode 0
+#angles 20  #number of angles you want to calculate 
+
+outcheck y
+outangle y 
+fileelastic y
+
+widthfluc y #width fluctuation correction
+
+
