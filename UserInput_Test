@@ -1,31 +1,24 @@
 #Target_info:
-name LiF
+name NaCl
 SampleShape Circular
 diameter(mm) 30
 thickness(mm) 0.001
 #SampleShape Rectangular
-#height(cm) 20 
-#width(cm)  20 
+#height(mm) 20 
+#width(mm)  20 
 #thickness(mm) 0.001
-Rotationangle(degrees) 45
-atomicMass(g/mol) 197.
-density(g/cm3) 19
+#Rotational angle Y the one needed for our simulations
+RotationangleX(degrees) 0
+RotationangleY(degrees) 0
+RotationangleZ(degrees) 0
 #
 #
 #Particle_info:
 particle triton
-#Angular distribution
-angulardistribution Isotropic
-#AngularDistributionfile nt0003.000ang.L00
 #
 #Energy(keV)
 energy 3000
-#energyspread
-#Reference frame
-ReferenceFrame LabFramefromCMFrame
-#ReferenceFrame LabFramefromCMFrame_Simultaneous
-#secondparticle alpha
-#ReferenceFrame CenterMass
+energyspread 100
 #particles information
 #Cl35(n,p)S35
 #incidentparticle 1.00866491595
@@ -37,32 +30,50 @@ incidentparticle 1.00866491595
 targetnucleus 6.015122795
 ejectedparticle 3.0160492
 residualnucleus 4.002602 
+#Reference frame
+#ReferenceFrame LabFramefromCMFrame
+ReferenceFrame LabFramefromCMFrame_Simultaneous
+secondparticle alpha
+#ReferenceFrame LabFrame
 #Simulate the decay of a calibration source
-#energyDecaySource 137 55
+#Angular distribution
+angulardistribution Anisotropic
+AngularDistributionfile nt0003.000ang.L00
+#energyDecaySource 13 55
 #emission_mode_(fixed/H/S):
 #-->If_fixed_set_origin&direction#
 emission H
 #bifFilename Profile_Resampling_0.1.hist
+#MissalignX(mm) 0
+#MissalignY(mm) 0
+#emission Decay
+#Source 241 95
 #
 #
 #Number_of_events:
-Nevents 100000
+Nevents 10000000
 #Tracking_info:
-#verbose 0
+verbose 0
 #
 #
 #Detectors_info:
 NumberDetectors 2
-SSD 1
-Thickness(mm) 0.02
+DSSSD 1
+Thickness(mm) 0.15
 z(cm) 2.5
-theta(deg) 0
+theta(deg) 0.15
 phi(deg) 0
+TranslationX(cm) 0
+TranslationY(cm) 0
+TranslationZ(cm) 0
 DSSSD 2
 Thickness(mm) 0.15
 z(cm) 2.5
 theta(deg) 180
 phi(deg) 0
+TranslationX(cm) 0
+TranslationY(cm) 0
+TranslationZ(cm) 0
 #
 #
 #Set_true_to_run_visualizationt
@@ -70,4 +81,4 @@ visualize false
 #
 #
 #Set_name_of_the_output_file
-outputFilename /home/francisco/Desktop/Year_2026/Simulations_MONNET/code/build/test_LabFramefromCMFrame_Rectangular_Isotropic_3keV.root
+outputFilename /home/francisco/Desktop/Year_2026/Simulations_MONNET/code/build/Circular_Anisotropic_BIF_1000000_0_degrees_3MeV_MONNET.root
