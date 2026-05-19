@@ -23,6 +23,7 @@ class DSSSDUserInput {
   inline string Get_Ang_File_Name() { return AngularDistributionFileName; }
   inline string Get_Secondary_Particle() { return secondaryparticle; }
   inline float Get_Particle_Energy() { return particleEnergy; }
+  inline float Get_Particle_Excitation_Energy() { return excitationEnergy; }
   inline float Get_Particle_Energy_Spread() { return energyspread; }
   inline int Get_Verbose_Level() { return verboseLevel; }
   inline double Get_Nevents() { return nEvents; }
@@ -34,6 +35,7 @@ class DSSSDUserInput {
   void Get_Direction(float &x0, float &y0, float &z0);
   void Return_particleinfo(float &Incident, float &Target, float &Ejected, float &Residual);
   void Get_MissAligment(float &missalignx, float &missaligny);
+  void Get_MissAligment(float &missalignx, float &missaligny, float &missalignz);
   void Return_DSSSD(int *theDetectorType, float* thethickness, float *thez,
                                 float *thetaRot, float *phiRot, float *translationx, 
                                 float *translationy, float *translationz);
@@ -60,9 +62,9 @@ class DSSSDUserInput {
   int verboseLevel; 
 
   float targetDiameter, targetHeight, targetWidth, targetThickness, targetaMass, 
-        targetDensity, particleEnergy, energyspread, Xorigin, Yorigin, Zorigin, Xdirection, 
+        targetDensity, particleEnergy, excitationEnergy, energyspread, Xorigin, Yorigin, Zorigin, Xdirection, 
         Ydirection, Zdirection, TargetRotationX, TargetRotationY, TargetRotationZ,
-        MissalignY, MissalignX;
+        MissalignY, MissalignX, MissalignZ;
 
   int NumberDetector, TotalNumberDectors;
   int ZDecayIsotope, ADecayIsotope;

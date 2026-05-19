@@ -35,7 +35,7 @@ private:
 
     DSSSDUserInput *userInp;
 
-    G4LogicalVolume *logicWorld, *targetCl, *targetLiF, *no_target, *goldlayer, *mylarlayer, *logicDSWafer;  
+    G4LogicalVolume *logicWorld, *targetCl, *targetLiF, *no_target, *goldlayer, *mylarlayer, *logicDSWafer, *albacking, *lifbacking, *targetAl26;  
     G4LogicalVolume* logicStripdE; 
     G4LogicalVolume* logicDSpixel;
     std::vector<G4LogicalVolume*> logicSSD;
@@ -46,6 +46,7 @@ private:
     G4Box *solidWorld, *solidStripdE;
     G4Box *solidDSWafer;  
     G4Box *solidDSpixel;  
+    G4Box *Target_Al26, *Target_LiF_nTOF;
     
     G4Tubs *Target_cl35, *Target_LiF, *solidAlRing;
     
@@ -55,6 +56,8 @@ private:
     void ConstructTarget_NaCl(G4LogicalVolume* mother);
     void ConstructTarget_LiF(G4LogicalVolume* mother);
     void ConstructTarget_NoTarget(G4LogicalVolume* mother);
+    void ConstructTarget_Al_nTOF(G4LogicalVolume* mother);
+    void ConstructTarget_LiF_nTOF(G4LogicalVolume* mother);
     void ConstructDetector_OneSide_DSSSD(G4LogicalVolume* mother, G4float dimZ, G4float Distance, 
                                          G4float thetaDSSSD, G4float phiDSSSD, G4int detID, 
                                          G4float translationx, G4float translationy, G4float translationz);
@@ -69,9 +72,11 @@ private:
     
     G4Material *cl35, *LiF, *pcb_material;
 
-    G4Material *Li, *Al, *F, *Cl, *air, *Au, *B, *Na, *Si, *Ca, *O;
+    G4Material *Li, *Al, *F, *Cl, *air, *Au, *B, *Na, *Si, *Ca, *O, *Al26;
 
     G4Material *vacuum, *quartz, *vacuum_mat, *kapton, *mylar;
+
+    G4Element* elAl26;
 
     
     G4double xWorld, yWorld, zWorld;
@@ -79,6 +84,7 @@ private:
     
     //Definition for building the target
     G4double targetDiameter, targetThickness, targetRadius;
+    G4double targetHeight, targetWidth;
     
     //Definition for building the detectors
     G4double DSwaferSizeZ, DSwaferSizeY, DSwaferSizeX, DSpixelSpacing; 

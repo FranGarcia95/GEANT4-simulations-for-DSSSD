@@ -32,6 +32,8 @@ private:
     G4int numbersideDSSSD;
 
     int proton, triton, alpha;   // 100
+    G4String framereference;
+
 
     std::vector<std::vector<G4double>> edep_SSD;
     std::vector<std::vector<G4double>> edep_DSSSD_Front;
