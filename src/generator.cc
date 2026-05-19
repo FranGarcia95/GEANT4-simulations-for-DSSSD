@@ -91,7 +91,8 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event* anEvent)
     G4double eneSigma = userInp->Get_Particle_Energy_Spread() * keV;
     E_Incident  = G4RandGauss::shoot(E_a, eneSigma);
     if (E_a < 0) E_Incident = E_a;
-    Qreaction = (M_a + M_A - M_b - M_B) * 931.494061;
+    G4float ExcitationEnergy = userInp->Get_Particle_Excitation_Energy();
+    Qreaction = (M_a + M_A - M_b - M_B) * 931.494061 - ExcitationEnergy;
 
     // Apply same rotation as geometry
     G4RotationMatrix rot;
@@ -117,8 +118,8 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event* anEvent)
 
     }else if(emissionMode == "H" && targetshape == "Rectangular"){
 
-        G4ThreeVector localPos(targetHeight * mm * G4UniformRand() - targetHeight * mm / 2,
-                               targetWidth * mm * G4UniformRand() - targetWidth * mm / 2,
+        G4ThreeVector localPos(targetWidth * mm * G4UniformRand() - targetWidth * mm / 2,
+                               targetHeight * mm * G4UniformRand() - targetHeight * mm / 2,
                                thickness * mm * G4UniformRand() - thickness * mm / 2);
 
         vorigin = rot * localPos;
@@ -169,7 +170,7 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event* anEvent)
             G4double theta = CLHEP::twopi * G4UniformRand();
             x0 = radius * cos(theta) + deltax0;
             y0 = radius * sin(theta) + deltay0;
-        } while (std::abs(x0) > targetHeight / 2.0 || std::abs(y0) > targetWidth / 2.0);
+        } while (std::abs(x0) > targetWidth / 2.0 || std::abs(y0) > targetHeight / 2.0);
 
         z0 = thickness * G4UniformRand() - thickness / 2;
 
@@ -178,20 +179,20 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event* anEvent)
         vorigin = rot * localPos;
 
     }else if (emissionMode == "Decay") {  // Cs137
-    float deltax0, deltay0;
+        float deltax0, deltay0, deltaz0;
         // Simulation of Source Sample generation Inside Sample
         // Position:
         G4int theA = userInp->Get_ADecayIsotope();
         G4int theZ = userInp->Get_ZDecayIsotope();
 
-        G4double ExcitationEnergy = 0;
+        ExcitationEnergy = 0;
         G4ParticleDefinition* ion = G4IonTable::GetIonTable()->GetIon(theZ, theA, ExcitationEnergy);
         fParticleGun->SetParticleDefinition(ion);
         fParticleGun->SetParticleEnergy(0 * eV);
 
-        userInp->Get_MissAligment(deltax0, deltay0);
+        userInp->Get_MissAligment(deltax0, deltay0, deltaz0);
 
-        G4ThreeVector localPos(deltax0, deltay0, 0);
+        G4ThreeVector localPos(deltax0, deltay0, deltaz0);
 
         vorigin = localPos;
         fParticleGun->SetParticlePosition(vorigin);
@@ -227,13 +228,13 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event* anEvent)
                 for (auto i = 1; i < angdist.size(); ++i) {
                     const auto [rad_max, p_max] = angdist.at(i);
                     if (p_max > p) {
-                        const auto [rad_min, p_min] = angdist.at(i - 1);
+                        const auto [rad_min, p_min] = angdist.at(i-1);
                         angle = rad_min + (p - p_min) * (rad_max - rad_min) / (p_max - p_min);
                         break;
                     }
                 }
 
-            } while (angle > 1. || angle < -1. );
+            } while (angle >= 1. || angle <= -1. );
 
             theta_frame = acos(angle);   // uniform in [-1,1]
             //G4cout << theta_frame << G4endl;
@@ -270,14 +271,17 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event* anEvent)
         fParticleGun->SetParticleMomentumDirection(worldDir);
 
                 // theta_lab
-        auto man = G4AnalysisManager::Instance();
-        man->FillNtupleIColumn(1, 0, evt);            
-        man->FillNtupleDColumn(1, 1, theta_lab/deg);      
-        man->FillNtupleDColumn(1, 2, theta_frame/deg);  
-        // man->FillNtupleDColumn(5, 3, E_Particle/MeV);  
-        // man->FillNtupleDColumn(5, 4, Qreaction);     
+
+        analysisManager->FillH2(6, theta_lab/deg, E_Particle/MeV); 
+
+        //auto analysisManager = G4AnalysisManager::Instance();
+        analysisManager->FillNtupleIColumn(1, 0, evt);            
+        analysisManager->FillNtupleDColumn(1, 1, theta_lab/deg);      
+        analysisManager->FillNtupleDColumn(1, 2, theta_frame/deg);  
+        analysisManager->FillNtupleDColumn(1, 3, E_Particle/MeV);  
+        analysisManager->FillNtupleDColumn(1, 4, Qreaction);     
     
-        man->AddNtupleRow(1);
+        analysisManager->AddNtupleRow(1);
 
         fParticleGun->SetParticlePosition(vorigin);
         fParticleGun->SetParticleEnergy(E_Particle);
@@ -325,11 +329,13 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event* anEvent)
 
         G4int evt = anEvent->GetEventID();
         // theta_lab
-        auto man = G4AnalysisManager::Instance();
-        man->FillNtupleIColumn(1, 0, evt);            
-        man->FillNtupleDColumn(1, 1, theta_lab/deg);
-        man->FillNtupleDColumn(1, 2, theta_frame/deg); 
-        man->AddNtupleRow(1);
+        //auto analysisManager = G4AnalysisManager::Instance();
+        analysisManager->FillNtupleIColumn(1, 0, evt);            
+        analysisManager->FillNtupleDColumn(1, 1, theta_lab/deg);
+        analysisManager->FillNtupleDColumn(1, 2, theta_frame/deg); 
+        analysisManager->FillNtupleDColumn(1, 3, E_Particle/MeV);  
+        analysisManager->FillNtupleDColumn(1, 4, Qreaction); 
+        analysisManager->AddNtupleRow(1);
     
         // Calculate theta_cm
         //G4double theta_cm = std::acos(costheta);
@@ -356,12 +362,14 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event* anEvent)
         G4float theta_lab_secondary = theta_lab;
         E_Particle = Kinematic_Energy(M_B, M_b);
 
-        man->FillH2(3, theta_lab_primary/deg, theta_lab_secondary/deg);
+        analysisManager->FillH2(3, theta_lab_primary/deg, theta_lab_secondary/deg);
 
-        man->FillNtupleIColumn(2, 0, evt);            
-        man->FillNtupleDColumn(2, 1, theta_lab/deg);
-        man->FillNtupleDColumn(2, 2, theta_frame/deg); 
-        man->AddNtupleRow(2);
+        analysisManager->FillNtupleIColumn(2, 0, evt);            
+        analysisManager->FillNtupleDColumn(2, 1, theta_lab/deg);
+        analysisManager->FillNtupleDColumn(2, 2, theta_frame/deg); 
+        analysisManager->FillNtupleDColumn(2, 3, E_Particle/MeV);  
+        analysisManager->FillNtupleDColumn(2, 4, Qreaction); 
+        analysisManager->AddNtupleRow(2);
 
         dx = std::sin(theta_lab) * std::cos(phi + CLHEP::pi);
         dy = std::sin(theta_lab) * std::sin(phi + CLHEP::pi);

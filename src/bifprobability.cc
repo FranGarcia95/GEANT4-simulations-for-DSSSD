@@ -118,9 +118,13 @@ std::vector<std::pair<G4float, G4float>> BifProbability::Get_Angular_Distributio
         G4double theta_rad = CLHEP::pi * angle / 180.0;
         G4double cos_tetha = std::cos(theta_rad);
 
-        angraw.push_back({cos_tetha, xs*sin(theta_rad)/2}
-    );
-
+        if(angle == 0){
+            angraw.push_back({cos_tetha, xs*sin(theta_rad)}); 
+        }else{
+            angraw.push_back({cos_tetha, xs*sin(theta_rad  - CLHEP::pi * 1 / 180.0)});
+        }
+        
+        
     }
 
     // Normalize properly as PDF
@@ -137,9 +141,15 @@ std::vector<std::pair<G4float, G4float>> BifProbability::Get_Angular_Distributio
 
     for (int i = 0; i < angraw.size(); i++) {
 
-        cumulative += angraw[i][1];   // THIS is correct CDF
+        if(i == 0){
+            cumulative = 0;   // THIS is correct CDF
 
-        ang.push_back({angraw[i][0], cumulative});
+            ang.push_back({angraw[i][0], cumulative});
+        }else{
+            cumulative += angraw[i][1];   // THIS is correct CDF
+
+            ang.push_back({angraw[i][0], cumulative});
+        }
 
     }
 

@@ -90,6 +90,8 @@ void DSSSDUserInput::Read_ConfigFile(char *finpName) {
       finp >> particle;
     else if (buffer == "energy")
       finp >> particleEnergy;
+    else if (buffer == "excitationenergy")
+      finp >> excitationEnergy;
     else if (buffer == "energyspread"){
       finp >> energyspread;  
       if(energyspread > particleEnergy){
@@ -164,6 +166,13 @@ void DSSSDUserInput::Read_ConfigFile(char *finpName) {
           finp >> MissalignY;
         }else {
           cout << "Missing MissalignY(mm)" << endl;
+          exit(-1);
+        }
+        finp >> buffer;
+        if (buffer == "MissalignZ(mm)"){
+          finp >> MissalignZ;
+        }else {
+          cout << "Missing MissalignZ(mm)" << endl;
           exit(-1);
         }
       }
@@ -291,6 +300,16 @@ void DSSSDUserInput::Get_MissAligment(float &missalignx, float &missaligny){
 
   missalignx = MissalignX;
   missaligny = MissalignY;
+
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void DSSSDUserInput::Get_MissAligment(float &missalignx, float &missaligny, float &missalignz){
+
+  missalignx = MissalignX;
+  missaligny = MissalignY;
+  missalignz = MissalignZ;
 
 }
 

@@ -23,6 +23,8 @@ MyRunAction::MyRunAction(DSSSDUserInput* u)
     analysisManager->CreateNtupleIColumn("EventN");      
     analysisManager->CreateNtupleDColumn("Theta_Lab");  
     analysisManager->CreateNtupleDColumn("Theta_CM"); 
+    analysisManager->CreateNtupleDColumn("Energy_Emitted_Particle");  
+    analysisManager->CreateNtupleDColumn("Q_Value"); 
     analysisManager->FinishNtuple();
 
     G4String framereference = userInp->Get_Reference_Frame();
@@ -31,6 +33,8 @@ MyRunAction::MyRunAction(DSSSDUserInput* u)
         analysisManager->CreateNtupleIColumn("EventN");      
         analysisManager->CreateNtupleDColumn("Theta_Lab");  
         analysisManager->CreateNtupleDColumn("Theta_CM"); 
+        analysisManager->CreateNtupleDColumn("Energy_Emitted_Particle");  
+        analysisManager->CreateNtupleDColumn("Q_Value"); 
         analysisManager->FinishNtuple();
     }
 
@@ -59,6 +63,24 @@ MyRunAction::MyRunAction(DSSSDUserInput* u)
     analysisManager->CreateH2("hYZParticlePosition",
       "(Y,Z) position of emission of primary particles in mm", 1200, -30, 30, 1200, -30, 30);
 
+    analysisManager->CreateH2("hXYParticlePosition Hits",
+      "(X,Y) position of Hits of particles in mm", 1200, -90, 90, 1200, -90, 90);
+    analysisManager->CreateH2("hXZParticlePosition Hits",
+      "(X,Z) position of Hits of particles in mm", 1200, -90, 90, 1200, -90, 90);
+    analysisManager->CreateH2("hYZParticlePosition Hits",
+      "(Y,Z) position of Hits of particles in mm", 1200, -90, 90, 1200, -90, 90);
+
+    if(framereference == "LabFramefromCMFrame"){
+      analysisManager->CreateH2("Energy Emitted vs Theta Lab",
+        "Energy Emitted (MeV) vs Theta Lab", 180, 0, 180, 10000, 0, 20.0);
+
+      analysisManager->CreateH2("Energy Emitted vs Theta Lab SSD",
+        "Energy Emitted (MeV) vs Theta Lab Hit", 180, 0, 180, 10000, 0, 20.0);
+
+      analysisManager->CreateH2("Energy Emitted vs Theta Lab DSSSD",
+        "Energy Emitted (MeV) vs Theta Lab Hit", 180, 0, 180, 10000, 0, 20.0);
+    }
+
     if(framereference == "LabFramefromCMFrame_Simultaneous"){
       analysisManager->CreateH2("Lab Angle Emission simultaneous",
                                 "Lab Angle Emission simultaneous", 900, 0, 180, 900, 0, 180);
@@ -69,14 +91,22 @@ MyRunAction::MyRunAction(DSSSDUserInput* u)
         G4int flag_DSSSD = userInp->Get_flagDSSSD(det + 1);
         if(flag_DSSSD == 1){
             analysisManager->CreateH1(("Initial angle from the lab frame SSD " + std::to_string(det + 1)).c_str(), 
-                                      ("Initial angle from the lab frame SSD " + std::to_string(det + 1)).c_str(), 180, 0, 180);
+                                       "Initial angle from the lab frame SSD in degrees", 180, 0, 180);
             analysisManager->CreateH1(("Initial angle from the cm frame SSD " + std::to_string(det + 1)).c_str(), 
-                                      ("Initial angle from the cm frame SSD " + std::to_string(det + 1)).c_str(), 180, 0, 180);
+                                       "Initial angle from the cm frame SSD in degrees", 180, 0, 180);
+            if(framereference == "LabFramefromCMFrame"){
+              analysisManager->CreateH2(("Energy Detected vs Theta Lab SSD" + std::to_string(det + 1)).c_str(),
+                                         "Energy Detected (MeV) vs Theta Lab SSD in degrees", 180, 0, 180, 10000, 0, 20.0);
+            }
         }else if(flag_DSSSD == 2){
-            analysisManager->CreateH1(("Initial angle from the lab frame DSSSD " + std::to_string(det + 1)).c_str(), 
-                                      ("Initial angle from the lab frame DSSSD " + std::to_string(det + 1)).c_str(), 180, 0, 180);
+            analysisManager->CreateH1(("Initial angle from the lab frame DSSSD_" + std::to_string(det + 1)).c_str(), 
+                                       "Initial angle from the lab frame DSSSD in degrees", 180, 0, 180);
             analysisManager->CreateH1(("Initial angle from the cm frame DSSSD " + std::to_string(det + 1)).c_str(), 
-                                      ("Initial angle from the cm frame DSSSD " + std::to_string(det + 1)).c_str(), 180, 0, 180);
+                                       "Initial angle from the cm frame DSSSD in degrees", 180, 0, 180);
+            if(framereference == "LabFramefromCMFrame"){
+              analysisManager->CreateH2(("Energy Detected vs Theta Lab DSSSD_" + std::to_string(det + 1)).c_str(),
+                                         "Energy Detected (MeV) vs Theta Lab DSSSD in degrees", 180, 0, 180, 10000, 0, 20.0);
+            }
         }
     }
 

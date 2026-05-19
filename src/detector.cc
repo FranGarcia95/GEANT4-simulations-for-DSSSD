@@ -11,6 +11,7 @@ MySensitiveDetector::MySensitiveDetector(G4String name, DSSSDUserInput* u) : G4V
 
     NumDet = userInp->Get_TotalNumberDectorsDSSSD();
     G4int counter = 0;
+    framereference = userInp->Get_Reference_Frame();
 
     //Detectors ID for filling the histogram spectra
     for(int det = 0; det < NumDet; det++){
@@ -88,6 +89,19 @@ G4bool MySensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhis
 
     int code = 0;
 
+    auto analysisManager = G4AnalysisManager::Instance();
+
+    G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
+    G4ThreeVector pos = preStepPoint->GetPosition();
+
+    G4double x1 = pos.x();
+    G4double y1 = pos.y();
+    G4double z1 = pos.z();
+
+    analysisManager->FillH2(3, x1, y1);
+    analysisManager->FillH2(4, x1, z1);
+    analysisManager->FillH2(5, y1, z1);
+
     // --- Assign code ---
     if(particleName == "proton") {
         code = proton;
@@ -99,11 +113,20 @@ G4bool MySensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhis
         return false; // ignore other particles
     }
     
+    auto event = G4RunManager::GetRunManager()->GetCurrentEvent();
+    auto primary_particle = event->GetPrimaryVertex(0)->GetPrimary(0);
+    const auto information =
+    (PrimaryParticleInformation*)primary_particle->GetUserInformation();
+    const auto thetalab = information-> Getlabangle();
+
     //if(particleName = "proton")
     
     if(userInp->Get_flagDSSSD(DetID) == 1){
         edep_SSD[DetID - 1][stripID] += edep;
         particleID_SSD[DetID - 1][stripID] |= code;
+        if(framereference == "LabFramefromCMFrame"){
+            analysisManager->FillH2(7 + HistID_angle[DetID - 1][0], thetalab/deg, edep);
+        }
     }else if(userInp->Get_flagDSSSD(DetID) == 2){
         G4int yIndex = (stripID % 1000) - 200;  // Y (0-15)
         G4int xIndex = (stripID / 1000) - 100;  // X (0-15)
@@ -111,6 +134,9 @@ G4bool MySensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhis
         edep_DSSSD_Back[DetID - 1][yIndex] += edep;
         particleID_DSSSD_Front[DetID - 1][xIndex] |= code;
         particleID_DSSSD_Back[DetID - 1][yIndex] |= code;
+        if(framereference == "LabFramefromCMFrame"){
+            analysisManager->FillH2(7 + HistID_angle[DetID - 1][0], thetalab/deg, edep);
+        }
     }else {
         G4cout << " Unknown Detector Name: " << fDetectorName << " with copyNo: " << stripID << G4endl;
     }
@@ -149,11 +175,17 @@ void MySensitiveDetector::EndOfEvent(G4HCofThisEvent*)
                     if(edep_DSSSD_Front[det][strip] > 0){
                         analysisManager->FillH1(numbersideDSSSD + HistID_angle[det][0]*2, thetalab/deg);
                         analysisManager->FillH1(numbersideDSSSD + HistID_angle[det][0]*2 + 1, thetacm/deg);
+                        if(framereference == "LabFramefromCMFrame"){
+                            analysisManager->FillH2(7 + NumDet + HistID_angle[det][0], thetalab/deg, edep_DSSSD_Front[det][strip]);
+                        }
                     }  
                 }else if(userInp->Get_flagDSSSD(det + 1) == 1){
                     if(edep_SSD[det][strip] > 0){
                         analysisManager->FillH1(numbersideDSSSD + HistID_angle[det][0]*2, thetalab/deg);
                         analysisManager->FillH1(numbersideDSSSD + HistID_angle[det][0]*2 + 1, thetacm/deg);
+                        if(framereference == "LabFramefromCMFrame"){
+                            analysisManager->FillH2(7 + NumDet + HistID_angle[det][0], thetalab/deg, edep_SSD[det][strip]);
+                        }
                     }
                 }
             }
